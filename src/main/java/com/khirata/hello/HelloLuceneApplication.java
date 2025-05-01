@@ -16,8 +16,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.ByteBuffersDirectory;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.IOException;
 
@@ -76,5 +74,4 @@ public class HelloLuceneApplication {
 		doc.add(new StringField("sku", sku, Field.Store.YES));
 		writer.addDocument(doc);
 	}
-
 }
