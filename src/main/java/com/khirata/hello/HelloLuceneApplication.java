@@ -39,7 +39,7 @@ public class HelloLuceneApplication {
 		writer.close();
 
 		//2. create the query
-		String queryString = "tv";
+		String queryString = "phone";
 
 		Query query = null;
 		try {
@@ -60,7 +60,8 @@ public class HelloLuceneApplication {
 		for (int i = 0; i < scoreDocs.length; i++) {
 			int docId = scoreDocs[i].doc;
 			Document document = searcher.storedFields().document(docId);
-			System.out.println((i + 1) + " - " + document.get("product") + " - sku: " + document.get("sku"));
+//			System.out.println((i + 1) + " - " + document.get("product") + " - sku: " + document.get("sku"));
+			System.out.println((i + 1) + " - " + document.get("product"));
 		}
 
 		reader.close();
