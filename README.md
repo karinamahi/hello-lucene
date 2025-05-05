@@ -4,7 +4,7 @@ I’ve been interested in studying search engines for a while, ever since I had 
 
 I found [LuceneTutorial.com](https://www.lucenetutorial.com/index.html), which references the article **Lucene in 5 minutes** , and I decided to replicate this project.
 
-## My Hello Lucene
+# My Hello Lucene
 
 For this project, I decided to simulate an e-commerce, so I'm indexing products:
 
@@ -19,7 +19,7 @@ addDoc(writer, "Smart TV 4K", "6");
 writer.close();
 ```
 
-And then, I search for "tv" and have the following output:
+And then, I search for `tv` and have the following output:
 ```text
 Found 3 products.
 1 - TV
@@ -27,21 +27,21 @@ Found 3 products.
 3 - Smart TV 4K
 ```
 
-Let's search for "smartphone":
+Let's search for `smartphone`:
 ```text
 Found 2 products.
 1 - Smartphone
 2 - Case for Smartphone
 ```
 
-Just "phone": 
+Just `phone`: 
 ```text
 Found 0 products.
 ```
 
-### Lucene Search Query Syntax
+# Lucene Search Query Syntax
 
-Before learning more about the query syntax , let's add the "department" field:
+Before learning more about the query syntax , let's add the `department` field:
 
 ```java
  private static void addDoc(IndexWriter writer, String productName, String department, String sku) throws IOException{
@@ -65,9 +65,12 @@ addDoc(writer, "TV Wall Bracket", "TV Accessories", "7");
 writer.close();
 ```
 
-**Default Field**
+### Default Field
+
 Now, let's understand how the QueryParser works.
-We specified "product" as the default field. So it is searching for "tv" in the field `product`, not in `department` or `sku` fields:
+
+We specified `product` as the default field. So it is searching for `tv` in the field `product`, not in `department` or `sku` fields:
+
 ```java
     String queryString = "tv";
 
@@ -87,7 +90,7 @@ Found 4 products.
 4 - TV Wall Bracket in TV Accessories
 ```
 
-We can specify the field "department" instead:
+We can specify the field `department` instead:
 ```java
 String queryString = "accessories";
 
@@ -103,7 +106,7 @@ Output:
 Found 1 products.
 1 - TV Wall Bracket in TV Accessories
 ```
-If we search for "accessories" but the default field is "product", the result is 0:
+If we search for `accessories` but the default field is `product`, the result is `0`:
 ```java
 String queryString = "accessories";
 
@@ -120,7 +123,7 @@ Found 0 products.
 ```
 In the following examples, we are going to specify the fields in a more dynamic way.
 
-**Keyword matching**
+### Keyword matching
 
 Let's keep "product" as the default field:
 ```java
@@ -175,3 +178,75 @@ Found 1 results for: 'product:smartphone -department:cases'.
 1 - Smartphone in Smartphones
 ```
 
+### Wildcard Matching
+
+1. Word that starts with:
+```text
+Found 4 results for: 'product:smart*'.
+1 - Smart TV in TVs
+2 - Smartphone in Smartphones
+3 - Case for Smartphone in Smartphone Cases & Covers
+4 - Smart TV 4K in TVs
+```
+2. Word that starts with and end with:
+```text
+Found 2 results for: 'product:sm*phone'.
+1 - Smartphone in Smartphones
+2 - Case for Smartphone in Smartphone Cases & Covers
+```
+In the [tutorial](https://www.lucenetutorial.com/lucene-query-syntax.html) there is this note: 
+
+"Note that Lucene doesn't support using a * symbol as the first character of a search."
+
+### Proximity matching
+To understand better how it works see the explanation in the [tutorial](https://www.lucenetutorial.com/lucene-query-syntax.html):
+
+1. Zero words from each other (between `smart` and `4k`):
+```text
+Found 0 results for: '"smart 4k"~0'.
+```
+2. One word from each other:
+```text
+Found 1 results for: '"smart 4k"~1'.
+1 - Smart TV 4K in TVs
+```
+3. Word transposition
+```text
+Found 0 results for: '"4k tv"~1'.
+```
+The tutorial says: "Note that for proximity searches, exact matches are proximity zero, and word transpositions (bar foo) are proximity 1", so I was expecting to have the "Smart TV 4K in TVs" returned. I don't know if I misunderstood it, but it's something that I'll need more time to understand it.
+
+### Ranges Searches
+
+```text
+Found 4 results for: 'sku:[2 TO 5]'.
+1 - Smart TV in TVs
+2 - Smartphone in Smartphones
+3 - Cellphone in Smartphones
+4 - Case for Smartphone in Smartphone Cases & Covers
+```
+
+### Boosts
+
+1. Specifying that `product tv` in `department:tvs` is more important than `product:tv` in `department:tv accessories`: 
+```text
+Found 4 results for: '(product:tv AND department:tvs)^1.5 (product:tv AND department:tv accessories)'.
+1 - TV in TVs
+2 - Smart TV in TVs
+3 - Smart TV 4K in TVs
+4 - TV Wall Bracket in TV Accessories
+```
+2. Specifying that `department:tv accessories` is more important now:
+```text
+Found 4 results for: '(product:tv AND department:tv accessories)^1.5 (product:tv AND department:tvs)'.
+1 - TV Wall Bracket in TV Accessories
+2 - TV in TVs
+3 - Smart TV in TVs
+4 - Smart TV 4K in TVs
+```
+
+## Next Steps
+1. Query classes
+2. Scoring
+
+[Lucene Doc](https://lucene.apache.org/core/4_0_0/core/org/apache/lucene/search/package-summary.html#search)

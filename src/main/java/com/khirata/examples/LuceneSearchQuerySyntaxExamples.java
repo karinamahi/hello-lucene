@@ -23,21 +23,47 @@ public class LuceneSearchQuerySyntaxExamples {
 
 
     public static void main(String[] args) throws IOException {
-        // search for word
+        // keyword matching examples
+        // 1. search for word
         search("product:tv");
         search("department:accessories");
 
-        // search for phrases
+        // 2. search for phrases
         search("product:smart tv");
 
-        // using "AND" clause
+        // 3. using "AND" clause
         search("product:tv AND department:TVs" );
 
-        // using "OR" clause
+        // 4. using "OR" clause
         search("product:tv OR product:smartphone");
 
-        // using exclusion
+        // 5. using exclusion
         search("product:smartphone -department:cases");
+
+        // wildcard matching
+        // 1. word that starts with
+        search("product:smart*");
+
+        // 2. word that starts with and ends with
+        search("product:sm*phone");
+
+        // proximity matching
+        // 1. zero words from each other
+        search("\"smart 4k\"~0");
+
+        // 2. one word from each other
+        search("\"smart 4k\"~1");
+
+        // 3. transposition
+        search("\"4k tv\"~1");
+
+        // ranges searches
+        search("sku:[2 TO 5]");
+
+        // boosts
+        search("(product:tv AND department:tvs)^1.5 (product:tv AND department:tv accessories)");
+
+        search("(product:tv AND department:tv accessories)^1.5 (product:tv AND department:tvs)");
 
     }
 
