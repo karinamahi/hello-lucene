@@ -245,8 +245,76 @@ Found 4 results for: '(product:tv AND department:tv accessories)^1.5 (product:tv
 4 - Smart TV 4K in TVs
 ```
 
+# Query Classes
+Instead of using a query string and parsing it into a `Query` object, we can use Lucene's `Query` classes directly .
+
+## TermQuery
+We can use the `TermQuery` to create a simple `Query`:
+```java
+// QueryClassesExamples.java
+Query tvQuery = new TermQuery(new Term("product", "tv"));
+```
+Output
+```text
+Found 4 results for: 'product:tv'.
+1 - TV in TVs
+2 - Smart TV in TVs
+3 - Smart TV 4K in TVs
+4 - TV Wall Bracket in TV Accessories
+```
+
+## Boolean Query
+To combine multiple queries, we can use the `BooleanQuery`. Below, an example using `MUST`:
+
+```java
+Query tvQuery = new TermQuery(new Term("product", "tv"));
+
+Query departmentTvsQuery = new TermQuery(new Term("department", "tvs"));
+
+Query tvInTvsQuery = new BooleanQuery.Builder()
+        .add(tvQuery, BooleanClause.Occur.MUST)
+        .add(departmentTvsQuery, BooleanClause.Occur.MUST)
+        .build();
+```
+Output
+```text
+Found 3 results for: '+product:tv +department:tvs'.
+1 - TV in TVs
+2 - Smart TV in TVs
+3 - Smart TV 4K in TVs
+```
+Example using `SHOULD`:
+```java
+TermQuery smartphoneQuery = new TermQuery(new Term("product", "smartphone"));
+TermQuery cellphoneQuery = new TermQuery(new Term("product", "cellphone"));
+
+BooleanQuery smartOrCellPhoneQuery = new BooleanQuery.Builder()
+        .add(smartphoneQuery, BooleanClause.Occur.SHOULD)
+        .add(cellphoneQuery, BooleanClause.Occur.SHOULD)
+        .build();
+```
+Output:
+```text
+Found 3 results for: 'product:smartphone product:cellphone'.
+1 - Cellphone in Smartphones
+2 - Smartphone in Smartphones
+3 - Case for Smartphone in Smartphone Cases & Covers
+```
+Combining `MUST` and `MUST NOT`: 
+
+```java
+Query tvQuery = new TermQuery(new Term("product", "tv"));
+Query departmentTvsQuery = new TermQuery(new Term("department", "tvs"));
+        
+Query tvNotInTvsQuery = new BooleanQuery.Builder()
+    .add(tvQuery, BooleanClause.Occur.MUST)
+    .add(departmentTvsQuery, BooleanClause.Occur.MUST_NOT)
+    .build();
+```
+
 ## Next Steps
-1. Query classes
+1. Continue Query Classes (Phrases)
 2. Scoring
+2. Custom queries
 
 [Lucene Doc](https://lucene.apache.org/core/4_0_0/core/org/apache/lucene/search/package-summary.html#search)
